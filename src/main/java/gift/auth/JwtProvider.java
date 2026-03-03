@@ -2,25 +2,17 @@ package gift.auth;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
 
-/**
- * Provides JWT token creation and validation.
- *
- * @author brian.kim
- * @since 1.0
- */
 @Component
 public class JwtProvider {
     private final SecretKey key;
     private final long expiration;
 
-    @Autowired
     public JwtProvider(
         @Value("${jwt.secret}") String secret,
         @Value("${jwt.expiration}") long expiration
