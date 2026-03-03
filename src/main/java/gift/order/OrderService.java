@@ -8,8 +8,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.NoSuchElementException;
-
 @Service
 public class OrderService {
     private final OrderRepository orderRepository;
@@ -41,8 +39,10 @@ public class OrderService {
     // 5. send kakao notification
     public Order createOrder(Member member, OrderRequest request) {
         // validate option
-        Option option = optionRepository.findById(request.optionId())
-            .orElseThrow(() -> new NoSuchElementException("옵션이 존재하지 않습니다. id=" + request.optionId()));
+        var option = optionRepository.findById(request.optionId()).orElse(null);
+        if (option == null) {
+            return null;
+        }
 
         // subtract stock
         option.subtractQuantity(request.quantity());

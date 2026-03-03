@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
-import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/api/orders")
@@ -48,12 +47,11 @@ public class OrderController {
             return ResponseEntity.status(401).build();
         }
 
-        try {
-            var saved = orderService.createOrder(member, request);
-            return ResponseEntity.created(URI.create("/api/orders/" + saved.getId()))
-                .body(OrderResponse.from(saved));
-        } catch (NoSuchElementException e) {
+        var saved = orderService.createOrder(member, request);
+        if (saved == null) {
             return ResponseEntity.notFound().build();
         }
+        return ResponseEntity.created(URI.create("/api/orders/" + saved.getId()))
+            .body(OrderResponse.from(saved));
     }
 }
