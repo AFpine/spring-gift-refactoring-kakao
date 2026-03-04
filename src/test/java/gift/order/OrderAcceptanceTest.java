@@ -9,6 +9,8 @@ import gift.option.Option;
 import gift.option.OptionRepository;
 import gift.product.Product;
 import gift.product.ProductRepository;
+import gift.wish.Wish;
+import gift.wish.WishRepository;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.ValidatableResponse;
@@ -50,6 +52,9 @@ class OrderAcceptanceTest {
     private MemberRepository memberRepository;
 
     @Autowired
+    private WishRepository wishRepository;
+
+    @Autowired
     private JwtProvider jwtProvider;
 
     private Member member;
@@ -74,6 +79,7 @@ class OrderAcceptanceTest {
     @AfterEach
     void tearDown() {
         orderRepository.deleteAllInBatch();
+        wishRepository.deleteAllInBatch();
         optionRepository.deleteAllInBatch();
         productRepository.deleteAllInBatch();
         categoryRepository.deleteAllInBatch();
@@ -192,6 +198,20 @@ class OrderAcceptanceTest {
 
         Option updated = optionRepository.findById(option.getId()).orElseThrow();
         assertThat(updated.getQuantity()).isEqualTo(initialQuantity);
+    }
+
+    @Test
+    @DisplayName("주문 완료 시 해당 상품의 위시가 삭제된다")
+    void createOrderCleansUpWish() {
+        // 위시 추가
+        wishRepository.save(new Wish(member.getId(), option.getProduct()));
+
+        // 주문
+        createOrderRequest(token, option.getId(), 1, "선물").statusCode(201);
+
+        // 위시 삭제 확인
+        var wishes = wishRepository.findByMemberIdAndProductId(member.getId(), option.getProduct().getId());
+        assertThat(wishes).isEmpty();
     }
 
     private ValidatableResponse createOrderRequest(String authToken, Long optionId, int quantity, String message) {
