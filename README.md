@@ -50,7 +50,7 @@
 - [x] OrderService.createOrder()에 @Transactional 추가 + 롤백 증거
 
 #### 누락된 작동 구현
-- [ ] 주문 완료 시 wish cleanup 구현
+- [x] 주문 완료 시 wish cleanup 구현
 
 #### 도메인 책임 되찾기
 - [ ] orElse(null) → 예외 전환 + 에러 처리 개선 (500→400)
