@@ -182,6 +182,18 @@ class OrderAcceptanceTest {
             .statusCode(500);
     }
 
+    @Test
+    @DisplayName("포인트 부족으로 주문 실패 시 재고가 롤백된다")
+    void createOrderRollsBackStockOnInsufficientPoints() {
+        int initialQuantity = option.getQuantity();
+
+        // 재고(100)는 충분하지만 포인트(100000)가 부족한 주문: 21 * 5000 = 105000
+        createOrderRequest(token, option.getId(), 21, "선물").statusCode(500);
+
+        Option updated = optionRepository.findById(option.getId()).orElseThrow();
+        assertThat(updated.getQuantity()).isEqualTo(initialQuantity);
+    }
+
     private ValidatableResponse createOrderRequest(String authToken, Long optionId, int quantity, String message) {
         return given()
             .header("Authorization", "Bearer " + authToken)
