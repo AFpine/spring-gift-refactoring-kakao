@@ -24,6 +24,7 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import java.util.Map;
 
 import static io.restassured.RestAssured.given;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 
@@ -138,6 +139,47 @@ class OrderAcceptanceTest {
     void createOrderWithZeroQuantity() {
         createOrderRequest(token, option.getId(), 0, "선물")
             .statusCode(400);
+    }
+
+    @Test
+    @DisplayName("주문 후 옵션 재고가 주문 수량만큼 차감된다")
+    void createOrderSubtractsStock() {
+        int initialQuantity = option.getQuantity();
+        int orderQuantity = 3;
+
+        createOrderRequest(token, option.getId(), orderQuantity, "선물").statusCode(201);
+
+        Option updated = optionRepository.findById(option.getId()).orElseThrow();
+        assertThat(updated.getQuantity()).isEqualTo(initialQuantity - orderQuantity);
+    }
+
+    @Test
+    @DisplayName("주문 후 회원 포인트가 결제 금액만큼 차감된다")
+    void createOrderDeductsPoints() {
+        int initialPoint = member.getPoint();
+        int orderQuantity = 2;
+        int expectedDeduction = option.getProduct().getPrice() * orderQuantity;
+
+        createOrderRequest(token, option.getId(), orderQuantity, "선물").statusCode(201);
+
+        Member updated = memberRepository.findById(member.getId()).orElseThrow();
+        assertThat(updated.getPoint()).isEqualTo(initialPoint - expectedDeduction);
+    }
+
+    @Test
+    @DisplayName("재고보다 많은 수량을 주문하면 500을 반환한다")
+    void createOrderWithInsufficientStock() {
+        createOrderRequest(token, option.getId(), 999, "선물")
+            .statusCode(500);
+    }
+
+    @Test
+    @DisplayName("포인트가 부족하면 500을 반환한다")
+    void createOrderWithInsufficientPoints() {
+        // member has 100000 points, product price is 5000
+        // ordering 21 units = 105000 > 100000
+        createOrderRequest(token, option.getId(), 21, "선물")
+            .statusCode(500);
     }
 
     private ValidatableResponse createOrderRequest(String authToken, Long optionId, int quantity, String message) {
