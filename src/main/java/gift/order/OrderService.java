@@ -2,11 +2,11 @@ package gift.order;
 
 import gift.member.Member;
 import gift.member.MemberRepository;
-import gift.option.Option;
 import gift.option.OptionRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class OrderService {
@@ -36,7 +36,7 @@ public class OrderService {
     // 2. subtract stock
     // 3. deduct points
     // 4. save order
-    // 5. send kakao notification
+    @Transactional
     public Order createOrder(Member member, OrderRequest request) {
         // validate option
         var option = optionRepository.findById(request.optionId()).orElse(null);
@@ -54,20 +54,15 @@ public class OrderService {
         memberRepository.save(member);
 
         // save order
-        Order saved = orderRepository.save(new Order(option, member.getId(), request.quantity(), request.message()));
-
-        // best-effort kakao notification
-        sendKakaoMessageIfPossible(member, saved, option);
-
-        return saved;
+        return orderRepository.save(new Order(option, member.getId(), request.quantity(), request.message()));
     }
 
-    private void sendKakaoMessageIfPossible(Member member, Order order, Option option) {
+    public void sendKakaoMessageIfPossible(Member member, Order order) {
         if (member.getKakaoAccessToken() == null) {
             return;
         }
         try {
-            var product = option.getProduct();
+            var product = order.getOption().getProduct();
             kakaoMessageClient.sendToMe(member.getKakaoAccessToken(), order, product);
         } catch (Exception ignored) {
         }

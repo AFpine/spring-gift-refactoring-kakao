@@ -51,6 +51,9 @@ public class OrderController {
         if (saved == null) {
             return ResponseEntity.notFound().build();
         }
+
+        orderService.sendKakaoMessageIfPossible(member, saved);
+
         return ResponseEntity.created(URI.create("/api/orders/" + saved.getId()))
             .body(OrderResponse.from(saved));
     }
