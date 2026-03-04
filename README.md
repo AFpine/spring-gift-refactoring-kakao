@@ -46,8 +46,8 @@
 ### 기능 목록
 
 #### 트랜잭션 경계 세우기
-- [ ] 카카오 알림을 createOrder에서 분리 (구조 변경)
-- [ ] OrderService.createOrder()에 @Transactional 추가 + 롤백 증거
+- [x] 카카오 알림을 createOrder에서 분리 (구조 변경)
+- [x] OrderService.createOrder()에 @Transactional 추가 + 롤백 증거
 
 #### 누락된 작동 구현
 - [ ] 주문 완료 시 wish cleanup 구현
