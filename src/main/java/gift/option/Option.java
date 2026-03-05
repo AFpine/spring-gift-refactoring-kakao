@@ -43,6 +43,10 @@ public class Option {
         this.quantity -= amount;
     }
 
+    public int calculatePrice(int quantity) {
+        return this.product.getPrice() * quantity;
+    }
+
     public Long getId() {
         return id;
     }
