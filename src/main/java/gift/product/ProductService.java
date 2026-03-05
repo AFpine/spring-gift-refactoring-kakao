@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -51,7 +52,11 @@ public class ProductService {
     }
 
     public List<String> validateProductName(String name, boolean allowKakao) {
-        return ProductNameValidator.validate(name, allowKakao);
+        List<String> errors = new ArrayList<>(Product.checkName(name));
+        if (!allowKakao && name != null && name.contains("카카오")) {
+            errors.add("\"카카오\"가 포함된 상품명은 담당 MD와 협의한 경우에만 사용할 수 있습니다.");
+        }
+        return errors;
     }
 
     private Category findCategory(Long categoryId) {
@@ -60,7 +65,7 @@ public class ProductService {
     }
 
     private void validateName(String name, boolean allowKakao) {
-        List<String> errors = ProductNameValidator.validate(name, allowKakao);
+        List<String> errors = validateProductName(name, allowKakao);
         if (!errors.isEmpty()) {
             throw new IllegalArgumentException(String.join(", ", errors));
         }
