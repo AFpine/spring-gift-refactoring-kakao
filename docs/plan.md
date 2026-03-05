@@ -44,5 +44,5 @@
 | 1-1 | 카카오 알림을 createOrder에서 분리 | 구조 변경 | 완료 |
 | 1-2 | @Transactional 추가 + 롤백 증거 테스트 | 작동 변경 | 완료 |
 | 2 | wish cleanup 구현 (주문 시 위시 삭제) | 작동 변경 | 완료 |
-| 3 | 가격 계산 로직을 Option 도메인으로 이동 | 구조 변경 | 대기 |
-| 4 | 이름 검증을 Entity 도메인으로 이동 (Option, Product) | 구조 변경 | 대기 |
+| 3 | 가격 계산 로직을 Option 도메인으로 이동 | 구조 변경 | 완료 |
+| 4 | 이름 검증을 Entity 도메인으로 이동 (Option, Product) | 구조 변경 | 완료 |
