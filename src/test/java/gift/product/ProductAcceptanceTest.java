@@ -9,12 +9,15 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.server.LocalServerPort;
 
 import java.util.Map;
+import java.util.stream.Stream;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
@@ -132,25 +135,19 @@ class ProductAcceptanceTest {
             .statusCode(204);
     }
 
-    @Test
-    @DisplayName("15자 초과 이름으로 상품을 생성하면 400을 반환한다")
-    void createProductWithInvalidName() {
-        createProductRequest("이름이열다섯자를초과하는상품이름입니다", 1000, "https://example.com/x.jpg")
+    @ParameterizedTest(name = "잘못된 이름 \"{0}\"으로 상품을 생성하면 400을 반환한다")
+    @MethodSource("invalidProductNames")
+    void createProductWithInvalidName(String name) {
+        createProductRequest(name, 1000, "https://example.com/x.jpg")
             .statusCode(400);
     }
 
-    @Test
-    @DisplayName("허용되지 않는 특수문자가 포함된 이름으로 상품을 생성하면 400을 반환한다")
-    void createProductWithInvalidCharacters() {
-        createProductRequest("상품!@#", 1000, "https://example.com/x.jpg")
-            .statusCode(400);
-    }
-
-    @Test
-    @DisplayName("카카오가 포함된 이름으로 상품을 생성하면 400을 반환한다")
-    void createProductWithKakaoName() {
-        createProductRequest("카카오 상품", 1000, "https://example.com/x.jpg")
-            .statusCode(400);
+    static Stream<String> invalidProductNames() {
+        return Stream.of(
+            "이름이열다섯자를초과하는상품이름입니다",  // 15자 초과
+            "상품!@#",                            // 허용되지 않는 특수문자
+            "카카오 상품"                           // 카카오 포함
+        );
     }
 
     private long createProductAndGetId(String name, int price, String imageUrl) {
