@@ -25,8 +25,6 @@ public class OptionService {
     }
 
     public Option createOption(Long productId, OptionRequest request) {
-        validateName(request.name());
-
         Product product = validateProductExists(productId);
 
         if (optionRepository.existsByProductIdAndName(productId, request.name())) {
@@ -57,10 +55,4 @@ public class OptionService {
             .orElseThrow(() -> new NoSuchElementException("상품이 존재하지 않습니다. id=" + productId));
     }
 
-    private void validateName(String name) {
-        List<String> errors = OptionNameValidator.validate(name);
-        if (!errors.isEmpty()) {
-            throw new IllegalArgumentException(String.join(", ", errors));
-        }
-    }
 }
