@@ -140,6 +140,13 @@ class ProductAcceptanceTest {
     }
 
     @Test
+    @DisplayName("허용되지 않는 특수문자가 포함된 이름으로 상품을 생성하면 400을 반환한다")
+    void createProductWithInvalidCharacters() {
+        createProductRequest("상품!@#", 1000, "https://example.com/x.jpg")
+            .statusCode(400);
+    }
+
+    @Test
     @DisplayName("카카오가 포함된 이름으로 상품을 생성하면 400을 반환한다")
     void createProductWithKakaoName() {
         createProductRequest("카카오 상품", 1000, "https://example.com/x.jpg")

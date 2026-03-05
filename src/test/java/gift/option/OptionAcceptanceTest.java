@@ -100,6 +100,21 @@ class OptionAcceptanceTest {
     }
 
     @Test
+    @DisplayName("50자 초과 이름으로 옵션을 생성하면 400을 반환한다")
+    void createOptionWithTooLongName() {
+        String longName = "a".repeat(51);
+        createOptionRequest(longName, 50)
+            .statusCode(400);
+    }
+
+    @Test
+    @DisplayName("허용되지 않는 특수문자가 포함된 이름으로 옵션을 생성하면 400을 반환한다")
+    void createOptionWithInvalidCharacters() {
+        createOptionRequest("옵션!@#", 50)
+            .statusCode(400);
+    }
+
+    @Test
     @DisplayName("마지막 남은 옵션을 삭제하면 400을 반환한다")
     void deleteLastOption() {
         given()
